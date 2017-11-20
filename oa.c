@@ -1,7 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
-#define TAMANHO_CLUSTER 4096
+#define TAMANHO_CLUSTER 2048
 enum{
 AddSetor = 1, AddTrilha = 60, AddCilindro = 300,
 FOUND = 1, NOT_FOUND = 0
@@ -269,36 +270,61 @@ void geraarquivo_b(track_array** start,fatent* FatEnt,fatlist* FatList, char* no
 }
 
 void mostrar_fat(fatlist* FatList,fatent* Fatent,int tam_fat){
-    //scanf("%s",FAT_ARQUIVOS[0].nome);
-    //scanf("%d",&FAT_ARQUIVOS[0].first_sector);
-    /*FAT_ARQUIVOS[0].first_sector = 1;
-    FAT_SETORES[1].eof = 0;
-    FAT_SETORES[1].next = 2;
-    FAT_SETORES[1].eof = 0;
-    FAT_SETORES[2].next = 6;
-    FAT_SETORES[2].eof = 0;
-    FAT_SETORES[6].eof = 1;*/
-    int i,cont;
-    int next;
-    printf("Nome              Setores              Tamanho \n");
+
+    int i,j,k,cont,cont_cluster=0;
+    int next,cont_espacos=50,cont_tira;
+
+    printf("\n\n||||************************************************ TABELA FAT ************************************************||||\n");
+    printf("|||| Nome                                              Setores                                          Tamanho ||||\n");
+    printf("||||                                                                                                            ||||\n");
+
     for(i=0;i<tam_fat+1;i++){
-        printf("%s              ",FatList[i].nome);
+        cont_tira = 0;
+        printf("|||| ");
+        printf("%s",FatList[i].nome);
+        for(k=0;k<cont_espacos - strlen(FatList[i].nome) - 3;k++){
+            printf(" ");
+        }
         //printf("%d \n",Fatent[i].next);
         next = FatList[i].first_sector;
-        printf("%d, ",next);
-        printf("%d, ",next+1);
-        printf("%d, ",next+2);
-        printf("%d, ",next+3);
+        for(j=0;j<4;j++){
+            printf("%d, ",next+j);
+            if(((next)+j) < 10){
+                cont_tira+=3;
+            }
+            else if (((next)+j) < 100){
+                cont_tira += 4;
+            }
+            else{
+                cont_tira += 5;
+            }
+        }
         cont = 0;
         while(Fatent[next].eof != 1){
             cont++;
-            next = Fatent[next].next;
-            printf("%d, ",next);
+            next = (Fatent[next].next);
+            for(j=0;j<4;j++){
+                printf("%d, ",(4*next)+j);
+                if(((4*next)+j) < 10){
+                cont_tira+=3;
+                }
+                else if (((4*next)+j) < 100){
+                    cont_tira += 4;
+                }
+                else{
+                    cont_tira += 5;
+                }
+            }
         }
-        printf("           ");
+        for(k=0;k<(cont_espacos - cont_tira + 3);k++){
+            printf(" ");
+        }
         printf("%d",(cont+1)*TAMANHO_CLUSTER);
-        printf(" B \n");
+        printf(" B ");
+        printf("||||\n");
+        cont_cluster++;
     }
+    printf("||||************************************************************************************************************||||\n\n\n");
 }
 
 void apagar_registro(){
