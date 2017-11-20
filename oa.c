@@ -327,38 +327,31 @@ void mostrar_fat(fatlist* FatList,fatent* Fatent,int tam_fat){
     printf("||||************************************************************************************************************||||\n\n\n");
 }
 
-void apagar_registro(){
-    char nome[50];
-    int primeiro_setor;
-    int next,i;
+void apagar_registro(fatlist* FatList,fatent* Fatent,int tam_fat){
+    char registro[50];
+    unsigned int primeiro_setor;
+    unsigned int next,i;
 
-    scanf("%s",nome);
-    FAT_ARQUIVOS[0].nome[0] = 'o';
-    FAT_ARQUIVOS[0].nome[1] = 'l';
-    FAT_ARQUIVOS[0].nome[2] = 'a';
-    FAT_ARQUIVOS[0].nome[3] = '\0';
+    printf("Informe o nome do registro a ser apagado: \n");
+    scanf("%s",registro);
 
-    FAT_ARQUIVOS[0].first_sector = 1;
-    FAT_SETORES[1].eof = 0;
-    FAT_SETORES[1].next = 2;
-    FAT_SETORES[1].eof = 0;
-    FAT_SETORES[2].next = 6;
-    FAT_SETORES[2].eof = 0;
-    FAT_SETORES[6].eof = 1;
-    for(i=0;i<1;i++){
-        if(strcmp(FAT_ARQUIVOS[i].nome,nome) == 0){
-            primeiro_setor = FAT_ARQUIVOS[i].first_sector;
+    for(i=0;i<tam_fat+1;i++){
+        printf("%s \n",FatList[i].nome);
+        if(strcmp(FatList[i].nome,registro) == 0){
+            primeiro_setor = FatList[i].first_sector;
         }
     }
 
     next = primeiro_setor;
-    while(FAT_SETORES[next].eof != 1){
-        FAT_SETORES[next].used = 0;
-        next = FAT_SETORES[next].next;
-    }
-    printf("%d\n",FAT_SETORES[1].used);
-    printf("%d\n",FAT_SETORES[2].used);
-    printf("%d\n",FAT_SETORES[6].used);
+    //next = Fatent[next].next;
+    //Fatent[next].eof = 0;
+    printf("2o eof: %d\n",Fatent[next].eof);
+    do{
+        Fatent[next].used = 0;
+        printf("Liberando setor...\n %dk\n",Fatent[next].used);
+        next = Fatent[next].next;
+    }while(Fatent[next].eof != 1);
+
     // Testes
     //Testes
 }
@@ -395,7 +388,8 @@ int main(){
                 break;
             case(3):
                 printf("Selecionado: Apagar um registro \n");
-                apagar_registro();
+                apagar_registro(Fatlist,Fatent,fat_num);
+                fat_num--;
                 break;
             case(4):
                 printf("Selecionado: Mostrar tabela FAT \n");
