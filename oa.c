@@ -268,7 +268,7 @@ void geraarquivo_b(track_array** start,fatent* FatEnt,fatlist* FatList, char* no
     }
 }
 
-void mostrar_fat(fatlist* FatList){
+void mostrar_fat(fatlist* FatList,fatent* Fatent,int tam_fat){
     //scanf("%s",FAT_ARQUIVOS[0].nome);
     //scanf("%d",&FAT_ARQUIVOS[0].first_sector);
     /*FAT_ARQUIVOS[0].first_sector = 1;
@@ -281,19 +281,23 @@ void mostrar_fat(fatlist* FatList){
     int i,cont;
     int next;
     printf("Nome              Setores              Tamanho \n");
-    for(i=0;i<1;i++){
+    for(i=0;i<tam_fat+1;i++){
         printf("%s              ",FatList[i].nome);
-        /*next = FatList[i].first_sector;
+        //printf("%d \n",Fatent[i].next);
+        next = FatList[i].first_sector;
         printf("%d, ",next);
+        printf("%d, ",next+1);
+        printf("%d, ",next+2);
+        printf("%d, ",next+3);
         cont = 0;
-        while(FAT_SETORES[next].eof != 1){
+        while(Fatent[next].eof != 1){
             cont++;
-            next = FAT_SETORES[next].next;
+            next = Fatent[next].next;
             printf("%d, ",next);
         }
         printf("           ");
         printf("%d",(cont+1)*TAMANHO_CLUSTER);
-        printf(" B \n");*/
+        printf(" B \n");
     }
 }
 
@@ -369,7 +373,7 @@ int main(){
                 break;
             case(4):
                 printf("Selecionado: Mostrar tabela FAT \n");
-                mostrar_fat(Fatlist);
+                mostrar_fat(Fatlist,Fatent,fat_num);
                 break;
             case(5):
                 printf("Selecionado: Sair \n");
