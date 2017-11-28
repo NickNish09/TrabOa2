@@ -1,10 +1,32 @@
+/****************************************************************************
+ * Trabalho de Organização de Arquivos - Estrutura do HD                    *
+ *                                                                          *
+ *                                                                          *
+ * Grupo: Alexandre Aragão - 13/0004880                                     *
+ *        Nicholas Nishimoto Marques - 150019343                            *
+ *        Thalbert Barbosa de Miranda - 14/0057056                          *
+ *                                                                          *
+ * Documentação feita com Doxygen,                                          *
+ * presente no arquivo "aMain_Documentation" na pasta "Documentação"        *
+ *                                                                          *
+ ****************************************************************************/
+
+ /**
+ * @file Trab0AV3.c
+ * @author Nicholas Marques, Alexandre Aragão, Thalbert Miranda
+ * @date Novembro de 2017
+ * @brief Documentação do trabalho de Organização de Arquivos.
+ * Trabalho referente à simulação em memória principal de um disco magnético, utilizando-se de conceitos
+ * de endereçamento por tabela FAT, setorização de disco, clusters, tempos de seek e de busca. Implementação baseada em
+ * vetores na memória principal que simulam cilindros do disco magnético.
+ *
+ * Versão do código de controle de HD - personalizada para ignorar quebras de linha escondidas.
+ * A informação de "Trilhas por superfície" do roteiro foi ignorada, uma vez que ela apenas limita o número de cilindros, e não há limite.
+ *
+ */
+
 #include<stdio.h>
 #include<stdlib.h>
-
-
-// Versão do código de controle de HD - personalizada para ignorar quebras de linha escondidas.
-// A informação de "Trilhas por superfície" do roteiro foi ignorada, uma vez que ela apenas limita o número de cilindros, e não há limite.
-
 
 
 
@@ -14,15 +36,22 @@ FOUND = 1, NOT_FOUND = 0,
 LATENCY = 6000,TRANSFER_C = 800,TRANSFER_S = 200,SEEK=4000
 };
 
+/**
+ * @brief Structs utilizadas para simular a tabela fat na memória.
+ *
+ * Fatent: utilizada para mapear cada setor do HD, indicando se o mesmo está sendo utilizado e o próximo setor relacionado.
+ * Fatlist: utilizada para mostrar o nome do arquivo e o primeiro setor por ele ocupado no HD.
+ */
+
 typedef struct fatent_s{
-    unsigned int    used;
-    unsigned int    eof;
-    unsigned int    next;
+    unsigned int    used; //!< De acordo com o valor indica se o setor está sendo usado (valor 1 indica que está sendo usado, 0 caso contrário).
+    unsigned int    eof;  //!< Indica se é o último setor utilizado por um arquivo (1 caso seja).
+    unsigned int    next; //!< Indica o valor do próximo setor ocupado pelo arquivo que utiliza esse setor.
 }fatent;
 
 typedef struct fatlist_s{
-    char            nome[100];
-    unsigned int    first_sector;
+    char            nome[100]; //!< String que contém o nome do arquivo ao qual aquele setor está ocupado.
+    unsigned int    first_sector; //!< Indica o primeiro setor do arquivo com nome definido na struct.
 }fatlist;
 
 typedef struct inttemplist{
@@ -53,7 +82,14 @@ void NumtoSring(int num,char* string){
     }
 }
 
-int Adress(int j,int k,int l){/*Recebe as componentes do endereço e gera o endereço*/
+/**
+ * @brief Recebe as componentes do endereço e gera o endereço.
+ *
+ *
+ *
+ */
+
+int Adress(int j,int k,int l){
     int R;
 
     R = j*AddSetor + k*AddTrilha + l*AddCilindro;
@@ -73,14 +109,27 @@ int comparastring(char* A, char* B){
     }
 }
 
-void RevAdress(int endereco,int* j,int* k,int* l){/*Recebe as componentes do endereço por referência e um inteiro, atualizando as componentes para apontares para aquele endereço*/
+/**
+ * @brief Recebe as componentes do endereço por referência e um inteiro, atualizando as componentes para apontares para aquele endereço
+ *
+ *
+ *
+ */
+
+void RevAdress(int endereco,int* j,int* k,int* l){
     *l = endereco/AddCilindro;
     *k = (endereco%AddCilindro)/AddTrilha;
     *j = (endereco%AddCilindro)%AddTrilha;
 }
 
+/**
+ * @brief Retorna a primeira posição do primeiro arquivo com dado nome
+ *
+ *
+ *
+ */
 
-int procura_registro(char* nome,fatlist* Afatlist,int* pos,int fim){/*Retorna a primeira posição do primeiro arquivo com dado nome*/
+int procura_registro(char* nome,fatlist* Afatlist,int* pos,int fim){
     int i = 0;
 
     while(i<fim){
@@ -95,7 +144,15 @@ int procura_registro(char* nome,fatlist* Afatlist,int* pos,int fim){/*Retorna a 
     return(-1);
 }
 
-void imprime_fat(fatlist* Afatlist,fatent* Afatent,int fat_num){/*Imprime a tabela FAT*/
+/**
+ * @brief Imprime a tabela FAT
+ *
+ * Função responsável por implementar a funcionalidade 4 do trabalho, onde ele mostra a tabela FAT
+ * com nome dos arquivos, setores por ele ocupado e o tamanho em disco (em bytes).
+ *
+ */
+
+void imprime_fat(fatlist* Afatlist,fatent* Afatent,int fat_num){
     int loc=0;
     int i=0,j=0,k=0,n=0;
     int tam = 0;
@@ -105,7 +162,7 @@ void imprime_fat(fatlist* Afatlist,fatent* Afatent,int fat_num){/*Imprime a tabe
     int* aux;
 
     //printf("|fat_num = %d|",fat_num);
-    if (fat_num > 0){/*Caso hajam arquivos gravados ...*/
+    if (fat_num > 0){//!*Caso hajam arquivos gravados ...*/
             printf("\nNome:               Tamanho Em Disco:   Localizacao:");
         while(i < fat_num){/*Enquanto houverem arquivos gravados não mostrados na tabela...*/
             j = 0;
@@ -113,7 +170,7 @@ void imprime_fat(fatlist* Afatlist,fatent* Afatent,int fat_num){/*Imprime a tabe
             loc = Afatlist[i].first_sector;
             atraso = atraso + SEEK;
             stops = (int*)malloc(2*sizeof(int));
-            stops[j] = loc;/*Salva o inicio de uma sequencia contínua de dados...*/
+            stops[j] = loc;//!*Salva o inicio de uma sequencia contínua de dados...*/
             //printf("%d",loc);
             tam = 512*loc;
             loc = Afatent[loc].next;
@@ -151,7 +208,7 @@ void imprime_fat(fatlist* Afatlist,fatent* Afatent,int fat_num){/*Imprime a tabe
             for (k=0;k<(20 - n);k++){
                 printf(" ");
             }
-            for(k=0;k<j;k++){/*Mostra os setores que um arquivo ocupa, de uma forma mais legível que a sugerida no roteiro*/
+            for(k=0;k<j;k++){//!*Mostra os setores que um arquivo ocupa, de uma forma mais legível que a sugerida no roteiro*/
                 printf("%d -> %d, ",stops[k*2],stops[k*2+1]);
             }
             printf("%d -> %d.",stops[k*2],stops[k*2+1]);
@@ -164,8 +221,15 @@ void imprime_fat(fatlist* Afatlist,fatent* Afatent,int fat_num){/*Imprime a tabe
     printf("\n\n");
 }
 
+/**
+ * @brief Apaga um arquivo do HD
+ *
+ * Função responsável por implementar a função 3 do trabalho, que apaga um registro setando os campos de "used" para 0 novamente e
+ * ajustando o setor inicial do arquivo.
+ *
+ */
 
-int apagar_registro(fatent* Afatent, fatlist* Afatlist,int fatnum){/*Apaga um arquivo do HD*/
+int apagar_registro(fatent* Afatent, fatlist* Afatlist,int fatnum){
     char nome[100];
     int i=0,k=0;;
     int loc = -1;
@@ -206,6 +270,14 @@ int apagar_registro(fatent* Afatent, fatlist* Afatlist,int fatnum){/*Apaga um ar
     }
 return(fatnum);/*retorna o novo número de arquivos, por comodidade ao programador*/
 }
+
+/**
+ * @brief Função que escreve no HD o registro passado como argumento.
+ *
+ * Função que recebe o número de cilindros alocados, a tabela FAT, o número de arquivos gerados atualmente e o nome do arquivo que contém os registros,
+ * retornando os registros gravados no HD e atualizando a tabela FAT com os setores utilizados nessa gravação.
+ *
+ */
 
 
 fatent* escrever_registro(char* nome,int* l/*l = número de cilindros alocados*/,track_array*** start,int* FAT_NUM,fatlist* fatlistp,fatent* fatentp){
@@ -290,7 +362,7 @@ fatent* escrever_registro(char* nome,int* l/*l = número de cilindros alocados*/,
                                 i++;
                                 //}
                                 if(temp == EOF){
-                                    printf("End Of File\n");
+                                    //printf("End Of File\n");
                                     end = 1;
                                     if(i <= 512){
                                         i--;
@@ -367,11 +439,12 @@ fatent* escrever_registro(char* nome,int* l/*l = número de cilindros alocados*/,
     }else{
         printf("Arquivo nao encontrado\n");
     }
-    printf("Retornando de |Escrever regitro|\n\n");
+    //printf("Retornando de |Escrever regitro|\n\n");
     return(fatentp);
 }
 
-void geraarquivo(char* In, char* nome){/*Escreve um arquivo contendo a string In de nome "nome". Não utilizada nesta versão.*/
+
+void geraarquivo(char* In, char* nome){//!*Escreve um arquivo contendo a string In de nome "nome". Não utilizada nesta versão.*/
     FILE* fpo;
     int i = 0;
 
@@ -386,7 +459,14 @@ void geraarquivo(char* In, char* nome){/*Escreve um arquivo contendo a string In
     printf("Arquivo criado com o nome %s \n",nome);
 }
 
-void geraarquivo_b(track_array** start,fatent* FatEnt,fatlist* FatList, char* nome, int fatnum){/*Escreve um arquivo contendo a string In de nome "nome". imprime uma string.*/
+/**
+ * @brief Escreve um arquivo contendo a string In de nome "nome". imprime uma string.
+ *
+ *
+ *
+ */
+
+void geraarquivo_b(track_array** start,fatent* FatEnt,fatlist* FatList, char* nome, int fatnum){
     FILE* fpo;
     int i = 0;
     int j=0,k=0,l=0;
@@ -478,7 +558,7 @@ int main(){
     cylinder = (track_array*)malloc(sizeof(track_array));
     inicio_disco = &cylinder;
     while (option != 5){
-        system("clear");
+        system("cls");
         switch(option){
             case(1):
                 printf("Selecionado: Criar novo registro. \n");
