@@ -7,7 +7,7 @@
  *        Thalbert Barbosa de Miranda - 14/0057056                          *
  *                                                                          *
  * Documentação feita com Doxygen,                                          *
- * presente no arquivo "aMain_Documentation" na pasta "Documentação"        *
+ * presente no arquivo "_trab_o_a_v3_8c" na pasta "Documentação"            *
  *                                                                          *
  ****************************************************************************/
 
